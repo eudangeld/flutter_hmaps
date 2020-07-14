@@ -6,11 +6,11 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 Future main() async {
   useRunWithEnv(MaterialApp(
     title: 'Maps Directions',
-    home: BootApp(),
+    home: HookMapsApp(),
   ));
 }
 
-class BootApp extends HookWidget {
+class HookMapsApp extends HookWidget {
   @override
   Widget build(BuildContext context) {
     return MapsWidget();

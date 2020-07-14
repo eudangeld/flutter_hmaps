@@ -1,4 +1,6 @@
-# Google Maps adn Directions Api and Flutter
+# Maps and Hooks on Flutter
+
+
 
 **IOS Quick start**
 - rename `.env.dist` file to `.env`
