@@ -2,12 +2,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_hmaps/util/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class MapsPage extends StatelessWidget {
+class MapsWidget extends HookWidget {
   final mapController = useState<Completer<GoogleMapController>>(Completer());
   final routeLines = useState<Map<PolylineId, Polyline>>({});
+  final _directionsBaseUrl =
+      'https://maps.googleapis.com/maps/api/directions/json?';
 
   final List<LatLng> locations = [
     LatLng(-23.533773, -46.625290),
@@ -30,11 +33,10 @@ class MapsPage extends StatelessWidget {
       "key": DotEnv().env['MAPS_KEY']
     };
     final _dio = Dio();
-    final result = await _dio.get(
-        'https://maps.googleapis.com/maps/api/directions/json?${buildQueryString(toLocation)}');
+    final result =
+        await _dio.get(useQueryString(_directionsBaseUrl, toLocation));
 
     final _lines = result.data['routes'][0]['legs'][0]['steps'] as List;
-
     int _count = 0;
 
     _lines.forEach((ee) {
@@ -51,22 +53,20 @@ class MapsPage extends StatelessWidget {
       routeLines.value[PolylineId(_count.toString())] = _pol;
       _count++;
     });
+
+    print(routeLines.value);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(onPressed: getDirections),
-      appBar: AppBar(),
-      body: GoogleMap(
-        polylines: Set<Polyline>.of(routeLines.value.values),
-        myLocationButtonEnabled: true,
-        mapType: MapType.normal,
-        initialCameraPosition:
-            CameraPosition(target: locations[0], zoom: 12.0, tilt: 30),
-        onMapCreated: (GoogleMapController controller) =>
-            mapController.value.complete(controller),
-      ),
+    return GoogleMap(
+      polylines: Set<Polyline>.of(routeLines.value.values),
+      myLocationButtonEnabled: true,
+      mapType: MapType.normal,
+      initialCameraPosition:
+          CameraPosition(target: locations[0], zoom: 12.0, tilt: 30),
+      onMapCreated: (GoogleMapController controller) =>
+          mapController.value.complete(controller),
     );
   }
 }

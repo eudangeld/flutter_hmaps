@@ -1,16 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-
-class Example extends HookWidget {
-  const Example({Key key, @required this.duration})
-      : assert(duration != null),
-        super(key: key);
-
-  final Duration duration;
-
-  @override
-  Widget build(BuildContext context) {
-    final controller = useAnimationController(duration: duration);
-    return Container();
-  }
-}
+String useQueryString(String baseUrl, Map<String, String> params) =>
+    baseUrl +
+    params.map((key, value) => MapEntry(key, '$key=$value')).values.join('&');
