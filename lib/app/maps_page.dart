@@ -1,18 +1,13 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class MapsPage extends StatefulWidget {
-  @override
-  _MapsPageState createState() => _MapsPageState();
-}
-
-class _MapsPageState extends State<MapsPage> {
-  Completer<GoogleMapController> _controller = Completer();
-  Set<Marker> _markers = Set<Marker>();
+class MapsPage extends StatelessWidget {
+  final mapController = useState<Completer<GoogleMapController>>(Completer());
+  final routeLines = useState<Map<PolylineId, Polyline>>({});
 
   final List<LatLng> locations = [
     LatLng(-23.533773, -46.625290),
@@ -22,8 +17,6 @@ class _MapsPageState extends State<MapsPage> {
 
   String buildQueryString(Map<String, String> params) =>
       params.map((key, value) => MapEntry(key, '$key=$value')).values.join('&');
-
-  Map<PolylineId, Polyline> _mapPolylines = {};
 
   // ignore: missing_return
   Future<void> getDirections() async {
@@ -55,9 +48,7 @@ class _MapsPageState extends State<MapsPage> {
           LatLng(ee['end_location']['lat'], ee['end_location']['lng']),
         ],
       );
-      setState(() {
-        _mapPolylines[PolylineId(_count.toString())] = _pol;
-      });
+      routeLines.value[PolylineId(_count.toString())] = _pol;
       _count++;
     });
   }
@@ -68,14 +59,13 @@ class _MapsPageState extends State<MapsPage> {
       floatingActionButton: FloatingActionButton(onPressed: getDirections),
       appBar: AppBar(),
       body: GoogleMap(
-        polylines: Set<Polyline>.of(_mapPolylines.values),
+        polylines: Set<Polyline>.of(routeLines.value.values),
         myLocationButtonEnabled: true,
         mapType: MapType.normal,
         initialCameraPosition:
             CameraPosition(target: locations[0], zoom: 12.0, tilt: 30),
         onMapCreated: (GoogleMapController controller) =>
-            _controller.complete(controller),
-        markers: _markers,
+            mapController.value.complete(controller),
       ),
     );
   }
