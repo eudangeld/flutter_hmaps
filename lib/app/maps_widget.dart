@@ -59,14 +59,16 @@ class MapsWidget extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GoogleMap(
-      polylines: Set<Polyline>.of(routeLines.value.values),
-      myLocationButtonEnabled: true,
-      mapType: MapType.normal,
-      initialCameraPosition:
-          CameraPosition(target: locations[0], zoom: 12.0, tilt: 30),
-      onMapCreated: (GoogleMapController controller) =>
-          mapController.value.complete(controller),
+    return Scaffold(
+      body: GoogleMap(
+        polylines: Set<Polyline>.of(routeLines.value.values),
+        myLocationButtonEnabled: true,
+        mapType: MapType.normal,
+        initialCameraPosition:
+            CameraPosition(target: locations[0], zoom: 12.0, tilt: 30),
+        onMapCreated: (GoogleMapController controller) =>
+            mapController.value.complete(controller),
+      ),
     );
   }
 }
