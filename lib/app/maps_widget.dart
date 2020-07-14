@@ -1,6 +1,6 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_hmaps/util/utils.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -18,12 +18,11 @@ class MapsWidget extends HookWidget {
 
   // ignore: missing_return
   Future<void> getDirections() async {
-    final result = await useDirections(
+    final _steps = await useDirectionsSteps(
         mockLocations[0], mockLocations[1], DotEnv().env['MAPS_KEY']);
-    final _lines = result.data['routes'][0]['legs'][0]['steps'] as List;
     int _count = 0;
 
-    _lines.forEach((ee) {
+    _steps.forEach((ee) {
       final _pol = Polyline(
         polylineId: PolylineId(_count.toString()),
         consumeTapEvents: true,

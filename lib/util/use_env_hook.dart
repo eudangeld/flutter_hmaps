@@ -2,4 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> useRunWithEnv(MaterialApp materialApp) async =>
-    DotEnv().load('.env').then((value) => materialApp);
+    DotEnv().load('.env').then((value) => runApp(materialApp));
+
+class BottApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {}
+}
