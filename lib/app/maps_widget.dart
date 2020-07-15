@@ -8,11 +8,19 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class MapsWidget extends StatelessWidget {
   final Completer<GoogleMapController> mapController = Completer();
   final Map<PolylineId, Polyline> routeLines = {};
+  final List<LatLng> directions;
+  final LatLng initialLocation;
+
+  MapsWidget(
+    this.initialLocation, {
+    Key key,
+    this.directions = const [],
+  }) : super(key: key);
 
   // ignore: missing_return
-  Future<void> getDirections(List<LatLng> directions) async {
-    final _steps = await useDirectionsSteps(
-        directions[0], directions[1], DotEnv().env['MAPS_KEY']);
+  Future<void> renderRouteDirection() async {
+    final _steps =
+        await useDirectionsSteps(directions, DotEnv().env['MAPS_KEY']);
     int _count = 0;
 
     _steps.forEach((ee) {
@@ -38,9 +46,9 @@ class MapsWidget extends StatelessWidget {
       myLocationButtonEnabled: true,
       mapType: MapType.normal,
       initialCameraPosition:
-          CameraPosition(target: mockLocations[0], zoom: 12.0, tilt: 30),
+          CameraPosition(target: initialLocation, zoom: 12.0, tilt: 30),
       onMapCreated: (GoogleMapController controller) =>
-          mapController.value.complete(controller),
+          mapController.complete(controller),
     );
   }
 }

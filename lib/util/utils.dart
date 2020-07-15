@@ -6,12 +6,17 @@ String useQueryString(String baseUrl, Map<String, String> params) =>
 
 final _dio = Dio();
 Future<List<dynamic>> useDirectionsSteps(
-        LatLng origin, LatLng destiny, String key) async =>
-    await _dio
-        .get(useQueryString(
-            'https://maps.googleapis.com/maps/api/directions/json?', {
-          "origin": origin.toString(),
-          "destination": destiny.toString(),
-          "key": key
-        }))
-        .then((result) => result.data['routes'][0]['legs'][0]['steps'] as List);
+    List<LatLng> directions, String key) async {
+  if (directions == null || directions.length < 2) {
+    return [];
+  }
+
+  return await _dio
+      .get(useQueryString(
+          'https://maps.googleapis.com/maps/api/directions/json?', {
+        "origin": directions[0].toString(),
+        "destination": directions[1].toString(),
+        "key": key
+      }))
+      .then((result) => result.data['routes'][0]['legs'][0]['steps'] as List);
+}

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 import 'package:flutter_hmaps/app/maps_widget.dart';
 import 'package:flutter_hmaps/util/use_env_hook.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -12,20 +13,27 @@ main() {
 }
 
 class HookMapsApp extends HookWidget {
-  createRoute() {
-    print('UPDATE');
-  }
+  var rng = new Random();
 
   @override
   Widget build(BuildContext context) {
-    final _direction = useState<List<LatLng>>(mockLocations);
-    final _maps = MapsWidget();
+    final _directions = useState<List<LatLng>>([]);
+    final _map = MapsWidget(mockLocations[0], directions: _directions.value);
+
+    useEffect(() {
+      _map.renderRouteDirection();
+      return;
+    }, _directions.value);
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(onPressed: createRoute),
+      floatingActionButton: FloatingActionButton(onPressed: () {
+        _directions.value
+          ..add(mockLocations[rng.nextInt(mockLocations.length - 1)])
+          ..add(mockLocations[rng.nextInt(mockLocations.length - 1)]);
+      }),
       body: Column(
         children: <Widget>[
-          Expanded(child: MapsWidget()),
+          Expanded(child: _map),
         ],
       ),
     );
