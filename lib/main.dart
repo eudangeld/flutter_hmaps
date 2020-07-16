@@ -1,3 +1,8 @@
+import 'dart:async';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+
+import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
+
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:flutter_hmaps/app/maps_widget.dart';
@@ -12,31 +17,84 @@ main() {
   ));
 }
 
+HookBuilder useDirectionsInput() {
+  final origin = TextEditingController();
+  final destiny = TextEditingController();
+
+  return HookBuilder(builder: (context) {
+    return Column(
+      children: <Widget>[
+        TextFormField(controller: origin),
+        TextFormField(controller: destiny),
+        ArgonButton(
+            height: 50,
+            roundLoadingShape: true,
+            width: MediaQuery.of(context).size.width * 0.45,
+            onTap: (startLoading, stopLoading, btnState) {
+              if (btnState == ButtonState.Idle) {
+                startLoading();
+              } else {
+                stopLoading();
+              }
+            },
+            child: Text(
+              "Search",
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700),
+            ),
+            loader: Container(
+              padding: EdgeInsets.all(10),
+              child: SpinKitRotatingCircle(
+                color: Colors.white,
+                // size: loaderWidth ,
+              ),
+            ))
+      ],
+    );
+  });
+}
+
 class HookMapsApp extends HookWidget {
-  var rng = new Random();
+  final rng = new Random();
+  final initialPosition = mockLocations[0];
+  final Completer<GoogleMapController> _mapController = Completer();
 
   @override
   Widget build(BuildContext context) {
-    final _directions = useState<List<LatLng>>([]);
-    final _map = MapsWidget(mockLocations[0], directions: _directions.value);
-
-    useEffect(() {
-      _map.renderRouteDirection();
-      return;
-    }, _directions.value);
+    final showSearchBar = useState<bool>(false);
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(onPressed: () {
-        _directions.value
-          ..add(mockLocations[rng.nextInt(mockLocations.length - 1)])
-          ..add(mockLocations[rng.nextInt(mockLocations.length - 1)]);
-      }),
-      body: Column(
-        children: <Widget>[
-          Expanded(child: _map),
-        ],
-      ),
-    );
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Row(
+            children: <Widget>[
+              Expanded(child: InkWell(child: Icon(Icons.access_time))),
+              Expanded(child: InkWell(child: Icon(Icons.access_time))),
+              Expanded(child: InkWell(child: Icon(Icons.access_time))),
+            ],
+          ),
+        ),
+        body: Stack(
+          children: [
+            Column(
+              children: <Widget>[
+                Expanded(
+                  child: GoogleMap(
+                      // polylines: Set<Polyline>.of(routeLines.values),
+                      myLocationButtonEnabled: true,
+                      mapType: MapType.normal,
+                      initialCameraPosition: CameraPosition(
+                          target: initialPosition, zoom: 12.0, tilt: 30),
+                      onMapCreated: (GoogleMapController controller) =>
+                          _mapController.complete(controller)),
+                ),
+              ],
+            ),
+            showSearchBar.value ? useDirectionsInput() : Container(),
+          ],
+        ));
   }
 }
 
